@@ -7,215 +7,225 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom scrollbar styling - Smaller */
+        /* Ultra Thin Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: #f0f4f8; 
+            background: #f1f5f9; 
         }
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1; 
-            border-radius: 3px;
+            border-radius: 2px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8; 
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
+            font-size: 11px; /* Base font smaller */
+            overflow: hidden; /* Prevent main scroll */
+            height: 100vh;
+        }
+        .card-compact {
+            @apply bg-white p-2 rounded-lg shadow-md border border-sky-100;
+        }
+        .input-compact {
+            @apply p-1 border border-slate-300 rounded w-full focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-[10px] h-6;
+        }
+        .btn-compact {
+            @apply py-0.5 px-2 rounded text-[10px] font-bold shadow-sm transition-all h-6 flex items-center justify-center;
+        }
+        .section-title {
+            @apply text-xs font-bold text-sky-800 border-b border-sky-200 pb-1 mb-1;
+        }
+        .label-compact {
+            @apply text-[9px] font-semibold text-slate-600 mb-0.5 block;
+        }
+        /* Row styling for super compact list */
+        .row-item {
+            @apply flex items-center p-0.5 border-b border-slate-50 hover:bg-slate-50 text-[10px];
         }
     </style>
 </head>
-<body class="p-2 md:p-6 relative">
+<body class="p-2 flex flex-col relative h-screen box-border">
     <!-- Error Log -->
-    <div id="error-container" class="hidden max-w-7xl mx-auto mb-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded text-xs">
-        <h3 class="font-bold">Terjadi Kesalahan:</h3>
-        <p id="error-message" class="font-mono mt-1"></p>
+    <div id="error-container" class="hidden max-w-7xl mx-auto mb-1 p-1 bg-red-100 border border-red-400 text-red-700 rounded text-[10px]">
+        <span class="font-bold">Error:</span> <span id="error-message"></span>
     </div>
 
     <!-- EDIT MODAL OVERLAY -->
-    <div id="edit-modal" class="fixed inset-0 bg-slate-900 bg-opacity-50 hidden z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-2xl p-5 w-full max-w-md mx-4 transform transition-all scale-100">
-            <h3 class="text-lg font-bold text-sky-900 mb-3 border-b pb-2">Edit Transaksi</h3>
-            <form id="edit-form" class="space-y-3">
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900 bg-opacity-40 hidden z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-lg shadow-2xl p-3 w-full max-w-xs transform transition-all scale-100 border border-slate-200">
+            <h3 class="text-xs font-bold text-sky-900 mb-2 border-b pb-1">Edit Transaksi</h3>
+            <form id="edit-form" class="space-y-2">
                 <input type="hidden" id="edit-id">
                 <input type="hidden" id="edit-type">
                 
                 <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Deskripsi / Nama Barang</label>
-                    <input type="text" id="edit-desc" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs" required>
+                    <label class="label-compact">Deskripsi / Nama</label>
+                    <input type="text" id="edit-desc" class="input-compact" required>
                 </div>
                 
-                <!-- Fields for Nota Only -->
                 <div id="edit-field-amount-wrapper">
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Jumlah Tagihan (Rp)</label>
-                    <input type="number" id="edit-amount" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs" min="0">
+                    <label class="label-compact">Jumlah (Rp)</label>
+                    <input type="number" id="edit-amount" class="input-compact" min="0">
                 </div>
 
-                <!-- Fields for Expense/Return Only -->
-                <div id="edit-fields-qty-price" class="hidden grid grid-cols-2 gap-3">
+                <div id="edit-fields-qty-price" class="hidden grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Qty</label>
-                        <input type="number" id="edit-qty" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs" min="1">
+                        <label class="label-compact">Qty</label>
+                        <input type="number" id="edit-qty" class="input-compact" min="1">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Harga Satuan</label>
-                        <input type="number" id="edit-price" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs" min="0">
+                        <label class="label-compact">Harga</label>
+                        <input type="number" id="edit-price" class="input-compact" min="0">
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-2 mt-4">
-                    <button type="button" id="cancel-edit" class="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold text-xs transition">Batal</button>
-                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-sky-600 text-white hover:bg-sky-700 font-semibold text-xs shadow-sm transition">Simpan</button>
+                <div class="flex justify-end gap-2 mt-2">
+                    <button type="button" id="cancel-edit" class="btn-compact bg-slate-100 text-slate-600 hover:bg-slate-200">Batal</button>
+                    <button type="submit" class="btn-compact bg-sky-600 text-white hover:bg-sky-700">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="app" class="max-w-[95%] mx-auto">
-        <header class="text-center mb-6 p-3 bg-sky-50 rounded-xl shadow-sm">
-            <h1 class="text-2xl font-extrabold text-sky-900">Aplikasi Tagihan & Sales SShope</h1>
-            <p class="text-slate-600 text-xs mt-1">Monitoring modal, tagihan, dan profit toko.</p>
-            <p id="auth-status" class="text-[10px] mt-1 text-sky-400">Memuat...</p>
-        </header>
-
-        <!-- Loading -->
-        <div id="loading" class="text-center p-8 text-sky-600 font-bold text-sm">
-            Sedang memuat data...
+    <header class="flex justify-between items-center px-3 py-1 bg-white rounded shadow-sm mb-1 border border-sky-100 shrink-0 h-8">
+        <div>
+            <h1 class="text-xs font-extrabold text-sky-900 leading-none">Aplikasi Tagihan & Sales SShope</h1>
         </div>
+        <div id="auth-status" class="text-[9px] text-sky-400 font-mono bg-sky-50 px-2 py-0.5 rounded">Connecting...</div>
+    </header>
 
-        <div id="main-content" class="hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                <!-- SISI KIRI: NOTA PEMBELIAN BARANG MODAL (COMPACT) -->
-                <div class="lg:col-span-1 bg-white p-4 rounded-xl shadow-lg border border-sky-100 hover:shadow-xl transition duration-300">
-                    <h2 class="text-lg font-bold border-b border-sky-200 pb-2 mb-3 text-sky-800">1. Rekap Nota Sparepart</h2>
-                    <form id="nota-form" class="mb-4 space-y-2">
-                        <div class="grid grid-cols-3 gap-2">
-                            <input type="text" id="nota-description" placeholder="Deskripsi (TGL 1)" class="col-span-2 p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs" required>
-                            <input type="number" id="nota-amount" placeholder="Rp" class="col-span-1 p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs" required min="0" value="">
-                        </div>
-                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white py-1.5 rounded-lg font-semibold w-full shadow-sm text-xs transition duration-200">Tambah Nota</button>
+    <div id="loading" class="text-center p-10 text-sky-600 font-bold text-xs absolute inset-0 flex items-center justify-center bg-white z-40">
+        Memuat Data...
+    </div>
+
+    <!-- MAIN CONTENT GRID - Full Height Wrapper -->
+    <div id="main-content" class="hidden flex-grow overflow-hidden pb-1">
+        <div class="grid grid-cols-12 gap-2 h-full">
+            
+            <!-- LEFT PANEL: NOTA (45% Width - col-span-5) -->
+            <div class="col-span-5 flex flex-col h-full card-compact bg-white/90">
+                <div class="shrink-0">
+                    <h2 class="section-title">1. Rekap Nota Sparepart</h2>
+                    <form id="nota-form" class="mb-1 flex gap-1">
+                        <input type="text" id="nota-description" placeholder="Deskripsi (TGL 1)" class="input-compact flex-[2]" required>
+                        <input type="number" id="nota-amount" placeholder="Rp" class="input-compact flex-[1]" required min="0">
+                        <button type="submit" class="btn-compact bg-amber-500 hover:bg-amber-600 text-white px-2">+</button>
                     </form>
-
-                    <!-- Nota List Container (Compact Grid) -->
-                    <div id="nota-list-container" class="grid grid-cols-2 gap-3 items-start">
-                        <div id="nota-column-1" class="flex flex-col gap-0.5 min-w-0"></div>
-                        <div id="nota-column-2" class="flex flex-col gap-0.5 min-w-0 hidden"></div>
-                    </div>
-                    
-                    <div class="mt-4 pt-2 border-t border-amber-100">
-                        <div class="flex justify-between items-center text-sm font-bold text-slate-800 bg-amber-50 p-2 rounded-lg">
-                            <span>TOTAL:</span>
-                            <span id="total-nota" class="text-amber-700">Rp 0</span>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- SISI KANAN ATAS -->
-                <div class="lg:col-span-2 space-y-4">
-                    <!-- BARANG LAIN -->
-                    <div class="bg-white p-4 rounded-xl shadow-lg border border-sky-100 hover:shadow-xl transition duration-300">
-                        <h2 class="text-lg font-bold border-b border-sky-200 pb-2 mb-3 text-sky-800">2. Tagihan Barang Lainnya</h2>
-                        <form id="expense-form" class="mb-3 grid grid-cols-6 gap-2">
-                            <div class="col-span-2">
-                                <input type="text" id="expense-name" placeholder="Nama Barang" class="p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 text-xs" required>
-                            </div>
-                            <div>
-                                <input type="number" id="expense-qty" placeholder="Qty" class="p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 text-xs" required min="1" value="1">
-                            </div>
-                            <div class="col-span-2">
-                                <input type="number" id="expense-price" placeholder="Harga Satuan" class="p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 text-xs" required min="0" value="">
-                            </div>
-                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white py-1.5 rounded-lg font-semibold text-xs shadow-sm transition duration-200">Tambah</button>
-                        </form>
-                        
-                        <div id="expense-list" class="space-y-1 max-h-32 overflow-y-auto pr-1"></div>
-
-                        <div class="mt-3 pt-2 border-t border-green-100 flex justify-between font-semibold text-slate-800 text-xs">
-                            <span>Total Tagihan Lainnya:</span>
-                            <span id="total-expense" class="text-green-700">Rp 0</span>
-                        </div>
+                <!-- SCROLLABLE LIST AREA - MAXIMIZED HEIGHT -->
+                <div class="flex-grow overflow-y-auto pr-1 border border-slate-100 rounded bg-slate-50/30 min-h-0">
+                    <div id="nota-list-container" class="grid grid-cols-2 gap-x-2 gap-y-0 content-start p-0.5">
+                        <div id="nota-column-1" class="flex flex-col w-full min-w-0"></div>
+                        <div id="nota-column-2" class="flex flex-col w-full min-w-0 hidden"></div>
                     </div>
-
-                    <!-- RETUR -->
-                    <div class="bg-white p-4 rounded-xl shadow-lg border border-sky-100 hover:shadow-xl transition duration-300">
-                        <h2 class="text-lg font-bold border-b border-sky-200 pb-2 mb-3 text-sky-800">3. Retur Barang (Pengurang)</h2>
-                        <form id="return-form" class="mb-3 grid grid-cols-6 gap-2">
-                            <div class="col-span-2">
-                                <input type="text" id="return-name" placeholder="Nama Barang" class="p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 text-xs" required>
-                            </div>
-                            <div>
-                                <input type="number" id="return-qty" placeholder="Qty" class="p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 text-xs" required min="1" value="1">
-                            </div>
-                            <div class="col-span-2">
-                                <input type="number" id="return-price" placeholder="Harga Satuan" class="p-2 border border-slate-300 rounded-lg w-full focus:ring-1 focus:ring-sky-500 text-xs" required min="0" value="">
-                            </div>
-                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-1.5 rounded-lg font-semibold text-xs shadow-sm transition duration-200">Retur</button>
-                        </form>
-                        
-                        <div id="return-list" class="space-y-1 max-h-32 overflow-y-auto pr-1"></div>
-
-                        <div class="mt-3 pt-2 border-t border-red-100 flex justify-between font-semibold text-slate-800 text-xs">
-                            <span>Total Retur:</span>
-                            <span id="total-return" class="text-red-700">- Rp 0</span>
-                        </div>
-                    </div>
-
-                    <!-- TOTAL BILLING -->
-                    <div class="bg-sky-100 p-4 rounded-xl shadow-inner border border-sky-200">
-                        <h2 class="text-lg font-bold border-b border-sky-300 pb-2 mb-2 text-sky-900">4. Total Billing Yang Harus Dibayar</h2>
-                        <div class="flex justify-between items-center text-2xl font-extrabold text-sky-900">
-                            <span>TOTAL AKHIR:</span>
-                            <span id="final-billing" class="text-3xl">Rp 0</span>
-                        </div>
+                </div>
+                
+                <div class="shrink-0 mt-1 pt-1 border-t border-amber-100">
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-800 bg-amber-50 p-1 rounded border border-amber-100">
+                        <span>TOTAL NOTA:</span>
+                        <span id="total-nota" class="text-amber-700 text-xs">Rp 0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- PROFIT -->
-            <div class="bg-lime-50 p-4 rounded-xl shadow-xl border border-lime-200">
-                <h2 class="text-lg font-bold border-b border-lime-300 pb-2 mb-4 text-lime-800">5. Kalkulasi Profit Bulanan</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <!-- FIXED INPUT SPACING -->
-                    <div class="lg:col-span-1 grid grid-cols-2 gap-x-3 gap-y-1">
-                        <div class="col-span-1 space-y-2">
-                            <div><p class="text-[10px] font-bold mb-0.5 text-slate-500 uppercase">a. Saldo Bank</p><input type="number" id="saldo-bank" class="p-1.5 border border-slate-300 rounded-md w-full text-xs font-medium" value="0"></div>
-                            <div><p class="text-[10px] font-bold mb-0.5 text-slate-500 uppercase">b. Saldo Shopee</p><input type="number" id="saldo-shopee" class="p-1.5 border border-slate-300 rounded-md w-full text-xs font-medium" value="0"></div>
-                            <div><p class="text-[10px] font-bold mb-0.5 text-slate-500 uppercase">c. Ongoing Shopee</p><input type="number" id="ongoing-shopee" class="p-1.5 border border-slate-300 rounded-md w-full text-xs font-medium" value="0"></div>
-                            <div><p class="text-[10px] font-bold mb-0.5 text-slate-500 uppercase">d. Saldo Toped TT</p><input type="number" id="saldo-topedtiktok" class="p-1.5 border border-slate-300 rounded-md w-full text-xs font-medium" value="0"></div>
-                        </div>
-                        <div class="col-span-1 space-y-2">
-                            <div><p class="text-[10px] font-bold mb-0.5 text-slate-500 uppercase">e. Ongoing Toped TT</p><input type="number" id="ongoing-topedtiktok" class="p-1.5 border border-slate-300 rounded-md w-full text-xs font-medium" value="0"></div>
-                            <div><p class="text-[10px] font-bold mb-0.5 text-slate-500 uppercase">f. Saldo Lazada</p><input type="number" id="saldo-lazada" class="p-1.5 border border-slate-300 rounded-md w-full text-xs font-medium" value="0"></div>
-                            <div><p class="text-[10px] font-bold mb-0.5 text-slate-500 uppercase">g. Ongoing Lazada</p><input type="number" id="ongoing-lazada" class="p-1.5 border border-slate-300 rounded-md w-full text-xs font-medium" value="0"></div>
-                            <div><p class="text-[10px] font-bold mb-0.5 text-red-600 uppercase">h. Saldo Terpakai</p><input type="number" id="saldo-terpakai" class="p-1.5 border border-red-300 rounded-md w-full text-xs font-medium text-red-700" value="0"></div>
-                        </div>
-                        <div class="col-span-2 mt-2">
-                            <button id="calculate-profit-btn" class="bg-lime-600 hover:bg-lime-700 text-white py-1.5 rounded-lg font-semibold w-full shadow-sm text-xs transition duration-200">Hitung Profit</button>
+            <!-- RIGHT PANEL: OTHERS & PROFIT (55% Width - col-span-7) -->
+            <div class="col-span-7 flex flex-col h-full gap-2 overflow-hidden">
+                
+                <!-- TOP RIGHT: TAGIHAN LAIN & RETUR (Grid 2 cols, height 35%) -->
+                <div class="grid grid-cols-2 gap-2 h-[35%] shrink-0">
+                    <!-- Tagihan Lain -->
+                    <div class="card-compact flex flex-col h-full min-h-0">
+                        <h2 class="section-title text-green-800 border-green-200">2. Tagihan Lainnya</h2>
+                        <form id="expense-form" class="mb-1 flex gap-1 shrink-0">
+                            <input type="text" id="expense-name" placeholder="Nama" class="input-compact flex-[2]" required>
+                            <input type="number" id="expense-qty" placeholder="Qty" class="input-compact w-8 text-center px-0" value="1">
+                            <input type="number" id="expense-price" placeholder="Harga" class="input-compact flex-[1]">
+                            <button type="submit" class="btn-compact bg-green-600 text-white hover:bg-green-700 px-2">+</button>
+                        </form>
+                        <div id="expense-list" class="flex-grow overflow-y-auto border border-slate-100 rounded mb-1 bg-slate-50/30 min-h-0"></div>
+                        <div class="flex justify-between font-bold text-[9px] text-green-800 pt-0.5 border-t border-green-100 shrink-0 mt-auto">
+                            <span>Total:</span> <span id="total-expense">Rp 0</span>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-2 grid grid-cols-2 gap-3 border-l border-lime-200 pl-4">
-                        <div class="p-2 bg-white rounded-lg shadow-sm border-b-2 border-lime-400">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase">Total Saldo Kotor</p>
-                            <p id="total-saldo-kotor" class="text-lg font-bold text-lime-700">Rp 0</p>
+                    <!-- Retur -->
+                    <div class="card-compact flex flex-col h-full min-h-0">
+                        <h2 class="section-title text-red-800 border-red-200">3. Retur (Kurang)</h2>
+                        <form id="return-form" class="mb-1 flex gap-1 shrink-0">
+                            <input type="text" id="return-name" placeholder="Nama" class="input-compact flex-[2]" required>
+                            <input type="number" id="return-qty" placeholder="Qty" class="input-compact w-8 text-center px-0" value="1">
+                            <input type="number" id="return-price" placeholder="Harga" class="input-compact flex-[1]">
+                            <button type="submit" class="btn-compact bg-red-600 text-white hover:bg-red-700 px-2">+</button>
+                        </form>
+                        <div id="return-list" class="flex-grow overflow-y-auto border border-slate-100 rounded mb-1 bg-slate-50/30 min-h-0"></div>
+                        <div class="flex justify-between font-bold text-[9px] text-red-800 pt-0.5 border-t border-red-100 shrink-0 mt-auto">
+                            <span>Total:</span> <span id="total-return">- Rp 0</span>
                         </div>
-                        <div class="p-2 bg-white rounded-lg shadow-sm border-b-2 border-red-400">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase">Saldo Terpakai (Pengurang)</p>
-                            <p id="saldo-terpakai-display" class="text-lg font-bold text-red-700">Rp 0</p>
+                    </div>
+                </div>
+
+                <!-- MIDDLE RIGHT: TOTAL BILLING (Shrink) -->
+                <div class="bg-sky-100 px-2 py-1 rounded border border-sky-200 shadow-inner shrink-0 flex justify-between items-center h-8">
+                    <h2 class="text-[10px] font-bold text-sky-900 uppercase">4. Total Billing</h2>
+                    <span id="final-billing" class="text-sm font-extrabold text-sky-800">Rp 0</span>
+                </div>
+
+                <!-- BOTTOM RIGHT: PROFIT CALCULATION (Flex Grow to fill rest) -->
+                <div class="card-compact flex-grow flex flex-col bg-lime-50/50 border-lime-200 min-h-0">
+                    <h2 class="section-title text-lime-800 border-lime-300 mb-1">5. Kalkulasi Profit Bulanan</h2>
+                    
+                    <div class="grid grid-cols-12 gap-2 h-full min-h-0">
+                        <!-- INPUTS (Compact Grid) -->
+                        <div class="col-span-7 grid grid-cols-2 gap-x-2 gap-y-0.5 content-start overflow-y-auto pr-1">
+                            <div><label class="label-compact">a. Saldo Bank</label><input type="number" id="saldo-bank" class="input-compact bg-white" value="0"></div>
+                            <div><label class="label-compact">e. Ongoing TT</label><input type="number" id="ongoing-topedtiktok" class="input-compact bg-white" value="0"></div>
+                            
+                            <div><label class="label-compact">b. Saldo Shopee</label><input type="number" id="saldo-shopee" class="input-compact bg-white" value="0"></div>
+                            <div><label class="label-compact">f. Saldo Lazada</label><input type="number" id="saldo-lazada" class="input-compact bg-white" value="0"></div>
+                            
+                            <div><label class="label-compact">c. Ongoing Shopee</label><input type="number" id="ongoing-shopee" class="input-compact bg-white" value="0"></div>
+                            <div><label class="label-compact">g. Ongoing Lazada</label><input type="number" id="ongoing-lazada" class="input-compact bg-white" value="0"></div>
+                            
+                            <div><label class="label-compact">d. Saldo Toped TT</label><input type="number" id="saldo-topedtiktok" class="input-compact bg-white" value="0"></div>
+                            <div><label class="label-compact text-red-600">h. Saldo Terpakai</label><input type="number" id="saldo-terpakai" class="input-compact bg-red-50 border-red-200 text-red-700 font-bold" value="0"></div>
+                            
+                            <div class="col-span-2 mt-1 pb-1">
+                                <button id="calculate-profit-btn" class="btn-compact w-full bg-lime-600 text-white hover:bg-lime-700 h-5 text-[9px]">HITUNG PROFIT</button>
+                            </div>
                         </div>
-                        <div class="p-2 bg-white rounded-lg shadow-sm border-b-2 border-sky-400">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase">Total Billing Tagihan</p>
-                            <p id="billing-for-profit" class="text-lg font-bold text-sky-700">Rp 0</p>
-                        </div>
-                        <div class="p-2 bg-white rounded-lg shadow-sm border-b-2 border-lime-400">
-                            <p class="text-[10px] text-slate-500 font-bold uppercase">Total Saldo Bersih</p>
-                            <p id="total-saldo-bersih" class="text-lg font-bold text-lime-700">Rp 0</p>
-                        </div>
-                        <div class="p-3 col-span-2 bg-lime-200 rounded-lg shadow-inner border border-lime-400 text-center">
-                            <p class="text-sm text-lime-900 font-bold uppercase">Total Profit Akhir</p>
-                            <p id="final-profit" class="text-3xl font-extrabold text-lime-800">Rp 0</p>
+
+                        <!-- RESULTS SUMMARY -->
+                        <div class="col-span-5 flex flex-col justify-center pl-2 border-l border-lime-200 text-[9px] gap-0.5">
+                            <div class="space-y-0.5">
+                                <div class="flex justify-between border-b border-lime-100 pb-0.5">
+                                    <span class="text-slate-500">Saldo Kotor</span>
+                                    <span id="total-saldo-kotor" class="font-bold text-lime-700">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between border-b border-red-100 pb-0.5">
+                                    <span class="text-slate-500">Terpakai (-)</span>
+                                    <span id="saldo-terpakai-display" class="font-bold text-red-600">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between border-b border-sky-100 pb-0.5">
+                                    <span class="text-slate-500">Billing (-)</span>
+                                    <span id="billing-for-profit" class="font-bold text-sky-600">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between pt-0.5">
+                                    <span class="text-slate-500 font-semibold">Saldo Bersih</span>
+                                    <span id="total-saldo-bersih" class="font-bold text-slate-700">Rp 0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-1 p-1.5 bg-lime-200 rounded text-center shadow-inner border border-lime-300">
+                                <div class="text-[8px] font-bold text-lime-800 uppercase tracking-wide">PROFIT BERSIH</div>
+                                <div id="final-profit" class="text-base font-black text-lime-900 leading-tight mt-0">Rp 0</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -237,7 +247,7 @@
         
         try {
             // --- TEMPAT PASTE KODE FIREBASE ANDA DI SINI ---
-                  const firebaseConfig = {
+            const firebaseConfig = {
   apiKey: "AIzaSyBtIkNiTVfqi314s7HokDOSkjXnl1P_AoE",
   authDomain: "aplikasi-subarushope.firebaseapp.com",
   projectId: "aplikasi-subarushope",
@@ -283,7 +293,6 @@
                 editForm: document.getElementById('edit-form')
             };
 
-            // Inputs
             const inputs = {
                 bank: document.getElementById('saldo-bank'),
                 shopee: document.getElementById('saldo-shopee'),
@@ -297,14 +306,13 @@
 
             // Initialize
             if (isFirebaseAvailable) {
-                els.authStatus.textContent = "Menghubungkan...";
                 if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
                 else await signInAnonymously(auth);
 
                 onAuthStateChanged(auth, (user) => {
                     if(user) {
                         userId = user.uid;
-                        els.authStatus.textContent = `ID: ${userId.slice(0,5)}`;
+                        els.authStatus.textContent = `Online | ID: ${userId.slice(0,4)}`;
                         els.loading.classList.add('hidden');
                         els.main.classList.remove('hidden');
                         startListeners();
@@ -313,12 +321,11 @@
             } else {
                 els.loading.classList.add('hidden');
                 els.main.classList.remove('hidden');
-                els.authStatus.textContent = "Mode Offline / Tanpa Firebase";
+                els.authStatus.textContent = "Offline Mode";
                 allTransactions = [];
                 render();
             }
 
-            // Data Logic
             let allTransactions = [];
 
             function getPath(col) { return `artifacts/${appId}/users/${userId}/${col}`; }
@@ -338,61 +345,45 @@
                 onSnapshot(doc(db, getPath('summary'), 'profit_summary'), (snap) => {
                     if(snap.exists()) {
                         const d = snap.data();
-                        inputs.bank.value = d.bank || 0;
-                        inputs.shopee.value = d.shopee || 0;
-                        inputs.ongoingShopee.value = d.ongoingShopee || 0;
-                        inputs.toped.value = d.toped || 0;
-                        inputs.ongoingToped.value = d.ongoingToped || 0;
-                        inputs.lazada.value = d.lazada || 0;
-                        inputs.ongoingLazada.value = d.ongoingLazada || 0;
-                        inputs.terpakai.value = d.terpakai || 0;
+                        Object.keys(inputs).forEach(key => {
+                            if(inputs[key]) inputs[key].value = d[key] || 0;
+                        });
                     }
                     calc();
                 });
             }
 
-            // --- EDIT FUNCTIONALITY ---
+            // --- EDIT ---
             window.openEditModal = function(id, type) {
                 const item = allTransactions.find(t => t.id === id);
                 if (!item) return;
-
                 document.getElementById('edit-id').value = id;
                 document.getElementById('edit-type').value = type;
                 document.getElementById('edit-desc').value = item.description || item.name;
 
-                const amountWrap = document.getElementById('edit-field-amount-wrapper');
-                const qtyPriceWrap = document.getElementById('edit-fields-qty-price');
+                const amWrap = document.getElementById('edit-field-amount-wrapper');
+                const qpWrap = document.getElementById('edit-fields-qty-price');
 
                 if (type === 'nota') {
-                    amountWrap.classList.remove('hidden');
-                    qtyPriceWrap.classList.add('hidden');
+                    amWrap.classList.remove('hidden');
+                    qpWrap.classList.add('hidden');
                     document.getElementById('edit-amount').value = item.amount;
-                    document.getElementById('edit-amount').required = true;
-                    document.getElementById('edit-qty').required = false;
-                    document.getElementById('edit-price').required = false;
                 } else {
-                    amountWrap.classList.add('hidden');
-                    qtyPriceWrap.classList.remove('hidden');
+                    amWrap.classList.add('hidden');
+                    qpWrap.classList.remove('hidden');
                     document.getElementById('edit-qty').value = item.quantity;
                     document.getElementById('edit-price').value = item.price;
-                    document.getElementById('edit-amount').required = false;
-                    document.getElementById('edit-qty').required = true;
-                    document.getElementById('edit-price').required = true;
                 }
-
                 els.editModal.classList.remove('hidden');
             };
 
-            document.getElementById('cancel-edit').addEventListener('click', () => {
-                els.editModal.classList.add('hidden');
-            });
+            document.getElementById('cancel-edit').onclick = () => els.editModal.classList.add('hidden');
 
-            els.editForm.addEventListener('submit', async (e) => {
+            els.editForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const id = document.getElementById('edit-id').value;
                 const type = document.getElementById('edit-type').value;
                 const desc = document.getElementById('edit-desc').value;
-                
                 let newData = {};
 
                 if (type === 'nota') {
@@ -404,19 +395,13 @@
                     newData = { name: desc, quantity: qty, price: price, amount: qty * price };
                 }
 
-                if (isFirebaseAvailable) {
-                    await updateDoc(doc(db, getPath('transactions'), id), newData);
-                } else {
-                    // Local update mock
+                if (isFirebaseAvailable) await updateDoc(doc(db, getPath('transactions'), id), newData);
+                else {
                     const idx = allTransactions.findIndex(t => t.id === id);
-                    if(idx !== -1) {
-                         allTransactions[idx] = { ...allTransactions[idx], ...newData };
-                         render(); calc();
-                    }
+                    if(idx !== -1) { allTransactions[idx] = { ...allTransactions[idx], ...newData }; render(); calc(); }
                 }
                 els.editModal.classList.add('hidden');
-            });
-
+            };
 
             function render() {
                 els.notaCol1.innerHTML = '';
@@ -432,7 +417,6 @@
                 const col2 = notas.slice(split);
 
                 col1.forEach((t, i) => els.notaCol1.appendChild(createNotaEl(t, i+1)));
-                
                 if(col2.length > 0) {
                     els.notaCol2.classList.remove('hidden');
                     col2.forEach((t, i) => els.notaCol2.appendChild(createNotaEl(t, split + i + 1)));
@@ -441,43 +425,38 @@
                 }
 
                 others.forEach(t => {
-                    if(t.type === 'expense') els.expenseList.appendChild(createOtherEl(t));
-                    else els.returnList.appendChild(createOtherEl(t));
+                    const el = createOtherEl(t);
+                    if(t.type === 'expense') els.expenseList.appendChild(el);
+                    else els.returnList.appendChild(el);
                 });
 
                 document.querySelectorAll('.btn-del').forEach(b => {
-                    b.addEventListener('click', () => {
+                    b.onclick = () => {
                          if(isFirebaseAvailable) deleteDoc(doc(db, getPath('transactions'), b.dataset.id));
-                         else { 
-                             allTransactions = allTransactions.filter(t => t.id !== b.dataset.id);
-                             render(); calc();
-                         }
-                    });
+                         else { allTransactions = allTransactions.filter(t => t.id !== b.dataset.id); render(); calc(); }
+                    };
                 });
-                
-                // Add listeners for edit buttons
                 document.querySelectorAll('.btn-edit').forEach(b => {
-                    b.addEventListener('click', () => {
-                         window.openEditModal(b.dataset.id, b.dataset.type);
-                    });
+                    b.onclick = () => window.openEditModal(b.dataset.id, b.dataset.type);
                 });
             }
 
             function createNotaEl(t, idx) {
                 const div = document.createElement('div');
-                div.className = 'flex items-center w-full p-1 rounded bg-slate-50 border border-slate-200 hover:bg-amber-50 transition-colors text-xs';
+                // Compact Row Style
+                div.className = 'row-item group';
                 div.innerHTML = `
-                    <div class="font-bold text-slate-500 w-5 text-center shrink-0 text-xs">${idx}.</div>
+                    <div class="font-bold text-slate-400 w-5 text-center shrink-0 text-[9px]">${idx}.</div>
                     <div class="flex-1 min-w-0 flex items-center gap-1 mr-1">
-                        <span class="truncate text-slate-700 font-medium flex-1" title="${t.description}">${t.description}</span>
-                        <span class="text-slate-300 text-[10px] shrink-0">|</span>
-                        <span class="text-amber-700 font-bold whitespace-nowrap shrink-0">${formatRp(t.amount)}</span>
+                        <span class="truncate text-slate-700 font-medium flex-1 cursor-help" title="${t.description}">${t.description}</span>
+                        <span class="text-slate-300 text-[9px] shrink-0">|</span>
+                        <span class="text-amber-700 font-bold whitespace-nowrap shrink-0 text-[10px]">${formatRp(t.amount)}</span>
                     </div>
-                    <div class="flex items-center gap-0.5 shrink-0">
-                         <button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5 rounded hover:bg-blue-50" data-id="${t.id}" data-type="nota" title="Edit">
+                    <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5" data-id="${t.id}" data-type="nota" title="Edit">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152.05A15.89,15.89,0,0,0,32,163.37V208a16,16,0,0,0,16,16H92.67a15.89,15.89,0,0,0,11.32-4.69L227.31,96A16,16,0,0,0,227.31,73.37ZM51.31,160,136,75.31,152.69,92,68,176.69H51.31V160ZM48,208V192H64v16Zm123.31-16L88,108.69,147.31,49.37,206.63,108.69Z"></path></svg>
                         </button>
-                        <button class="btn-del text-red-400 hover:text-red-600 p-0.5 rounded hover:bg-red-50" data-id="${t.id}" title="Hapus">
+                        <button class="btn-del text-red-400 hover:text-red-600 p-0.5" data-id="${t.id}" title="Hapus">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
                         </button>
                     </div>
@@ -488,16 +467,16 @@
             function createOtherEl(t) {
                 const div = document.createElement('div');
                 const isExp = t.type === 'expense';
-                div.className = `flex justify-between items-center p-1.5 rounded text-xs ${isExp ? 'bg-green-50' : 'bg-red-50'}`;
+                div.className = 'row-item group';
                 const val = `${isExp?'':'- '}${formatRp(t.amount)}`;
                 div.innerHTML = `
-                    <span class="truncate font-medium text-slate-700">${t.name} <span class="text-slate-400 text-[10px]">(${t.quantity}x)</span></span>
-                    <div class="flex items-center gap-1">
-                        <span class="font-bold ${isExp?'text-slate-700':'text-red-700'}">${val}</span>
-                        <button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5 rounded hover:bg-blue-50" data-id="${t.id}" data-type="${t.type}">
+                    <span class="truncate font-medium text-slate-700 flex-1" title="${t.name}">${t.name} <span class="text-slate-400 text-[9px]">(${t.quantity}x)</span></span>
+                    <span class="font-bold ${isExp?'text-green-700':'text-red-700'} mr-2">${val}</span>
+                    <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5" data-id="${t.id}" data-type="${t.type}">
                              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152.05A15.89,15.89,0,0,0,32,163.37V208a16,16,0,0,0,16,16H92.67a15.89,15.89,0,0,0,11.32-4.69L227.31,96A16,16,0,0,0,227.31,73.37ZM51.31,160,136,75.31,152.69,92,68,176.69H51.31V160ZM48,208V192H64v16Zm123.31-16L88,108.69,147.31,49.37,206.63,108.69Z"></path></svg>
                         </button>
-                        <button class="btn-del text-red-400 hover:text-red-600 p-0.5 rounded hover:bg-red-50" data-id="${t.id}">
+                        <button class="btn-del text-red-400 hover:text-red-600 p-0.5" data-id="${t.id}">
                              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
                         </button>
                     </div>
@@ -520,27 +499,18 @@
                 els.finalBilling.textContent = formatRp(bill);
                 els.billingForProfit.textContent = formatRp(bill);
 
-                const vals = {
-                    bank: parseFloat(inputs.bank.value)||0,
-                    shopee: parseFloat(inputs.shopee.value)||0,
-                    ongoingShopee: parseFloat(inputs.ongoingShopee.value)||0,
-                    toped: parseFloat(inputs.toped.value)||0,
-                    ongoingToped: parseFloat(inputs.ongoingToped.value)||0,
-                    lazada: parseFloat(inputs.lazada.value)||0,
-                    ongoingLazada: parseFloat(inputs.ongoingLazada.value)||0,
-                    terpakai: parseFloat(inputs.terpakai.value)||0
-                };
+                let vals = {};
+                Object.keys(inputs).forEach(k => vals[k] = parseFloat(inputs[k].value)||0);
 
                 const kotor = vals.bank + vals.shopee + vals.ongoingShopee + vals.toped + vals.ongoingToped + vals.lazada + vals.ongoingLazada;
                 const bersih = kotor - vals.terpakai;
                 const profit = bersih - bill;
 
-                els.saldoKotor.textContent = formatRp(kotor);
-                els.saldoTerpakai.textContent = formatRp(vals.terpakai);
-                els.saldoBersih.textContent = formatRp(bersih);
+                document.getElementById('total-saldo-kotor').textContent = formatRp(kotor);
+                document.getElementById('saldo-terpakai-display').textContent = formatRp(vals.terpakai);
+                document.getElementById('total-saldo-bersih').textContent = formatRp(bersih);
                 els.finalProfit.textContent = formatRp(profit);
-                
-                els.finalProfit.className = `text-3xl font-extrabold ${profit>=0 ? 'text-lime-800' : 'text-red-600'}`;
+                els.finalProfit.className = `text-xl font-black leading-tight mt-0.5 ${profit>=0 ? 'text-lime-900' : 'text-red-700'}`;
 
                 if(isFirebaseAvailable) {
                     if(window.saveTimeout) clearTimeout(window.saveTimeout);
@@ -557,11 +527,7 @@
                 if(desc && !isNaN(amt)) {
                     const newItem = {type:'nota', description:desc, amount:amt, date: new Date()};
                     if(isFirebaseAvailable) addDoc(collection(db, getPath('transactions')), newItem);
-                    else { 
-                        newItem.id = Math.random().toString(36).substr(2, 9);
-                        allTransactions.push(newItem);
-                        render(); calc();
-                    }
+                    else { newItem.id = Math.random().toString(36); allTransactions.push(newItem); render(); calc(); }
                     e.target.reset();
                     document.getElementById('nota-amount').value = '';
                 }
@@ -584,21 +550,4 @@
                 const qty = parseFloat(document.getElementById('return-qty').value);
                 const prc = parseFloat(document.getElementById('return-price').value);
                 if(name && qty>0) {
-                     const newItem = {type:'return', name, quantity:qty, price:prc, amount:qty*prc, date: new Date()};
-                    if(isFirebaseAvailable) addDoc(collection(db, getPath('transactions')), newItem);
-                    else { allTransactions.push({...newItem, id:Math.random().toString()}); render(); calc(); }
-                    e.target.reset();
-                }
-            };
-            document.getElementById('calculate-profit-btn').onclick = calc;
-            Object.values(inputs).forEach(inp => inp.oninput = calc);
-
-        } catch(e) {
-            console.error(e);
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error-container').classList.remove('hidden');
-            document.getElementById('error-message').textContent = e.message;
-        }
-    </script>
-</body>
-</html>
+                     const newItem = {type
