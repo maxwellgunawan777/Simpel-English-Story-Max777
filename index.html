@@ -8,52 +8,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Ultra Thin Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 2px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
-            font-size: 11px; /* Base font smaller */
-            overflow: hidden; /* Prevent main scroll */
+            font-size: 11px;
+            overflow: hidden;
             height: 100vh;
         }
-        .card-compact {
-            @apply bg-white p-2 rounded-lg shadow-md border border-sky-100;
-        }
-        .input-compact {
-            @apply p-1 border border-slate-300 rounded w-full focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-[10px] h-6;
-        }
-        .btn-compact {
-            @apply py-0.5 px-2 rounded text-[10px] font-bold shadow-sm transition-all h-6 flex items-center justify-center;
-        }
-        .section-title {
-            @apply text-xs font-bold text-sky-800 border-b border-sky-200 pb-1 mb-1;
-        }
-        .label-compact {
-            @apply text-[9px] font-semibold text-slate-600 mb-0.5 block;
-        }
-        /* Row styling for super compact list */
-        .row-item {
-            @apply flex items-center p-0.5 border-b border-slate-50 hover:bg-slate-50 text-[10px];
-        }
+        .card-compact { @apply bg-white p-2 rounded-lg shadow-md border border-sky-100; }
+        .input-compact { @apply p-1 border border-slate-300 rounded w-full focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-[10px] h-6; }
+        .btn-compact { @apply py-0.5 px-2 rounded text-[10px] font-bold shadow-sm transition-all h-6 flex items-center justify-center; }
+        .section-title { @apply text-xs font-bold text-sky-800 border-b border-sky-200 pb-1 mb-1; }
+        .label-compact { @apply text-[9px] font-semibold text-slate-600 mb-0.5 block; }
+        .row-item { @apply flex items-center p-0.5 border-b border-slate-50 hover:bg-slate-50 text-[10px]; }
     </style>
+    
+    <!-- SAFETY ERROR HANDLER: Akan menangkap error bahkan jika kode utama mati -->
+    <script>
+        window.onerror = function(msg, url, line) {
+            var loading = document.getElementById('loading');
+            var errContainer = document.getElementById('error-container');
+            var errMsg = document.getElementById('error-message');
+            
+            if (loading) loading.style.display = 'none';
+            if (errContainer && errMsg) {
+                errContainer.classList.remove('hidden');
+                errContainer.style.display = 'block'; // Force show
+                errMsg.textContent = msg + " (Baris: " + line + ")";
+            }
+            return false;
+        };
+    </script>
 </head>
 <body class="p-2 flex flex-col relative h-screen box-border">
-    <!-- Error Log -->
-    <div id="error-container" class="hidden max-w-7xl mx-auto mb-1 p-1 bg-red-100 border border-red-400 text-red-700 rounded text-[10px]">
-        <span class="font-bold">Error:</span> <span id="error-message"></span>
+    
+    <!-- Error Log (Pasti muncul jika ada salah koding) -->
+    <div id="error-container" class="hidden fixed top-10 left-1/2 transform -translate-x-1/2 z-50 max-w-lg w-full p-4 bg-red-100 border-2 border-red-500 text-red-700 rounded-lg shadow-2xl">
+        <h3 class="font-bold text-lg">⚠️ Terjadi Kesalahan Kode!</h3>
+        <p class="text-xs mt-1">Kemungkinan ada salah ketik saat paste Firebase Config.</p>
+        <p id="error-message" class="font-mono font-bold mt-2 text-sm bg-white p-2 rounded border border-red-200"></p>
+        <button onclick="location.reload()" class="mt-3 bg-red-600 text-white px-4 py-1 rounded text-xs">Coba Refresh</button>
     </div>
 
     <!-- EDIT MODAL OVERLAY -->
@@ -63,28 +61,18 @@
             <form id="edit-form" class="space-y-2">
                 <input type="hidden" id="edit-id">
                 <input type="hidden" id="edit-type">
-                
                 <div>
                     <label class="label-compact">Deskripsi / Nama</label>
                     <input type="text" id="edit-desc" class="input-compact" required>
                 </div>
-                
                 <div id="edit-field-amount-wrapper">
                     <label class="label-compact">Jumlah (Rp)</label>
                     <input type="number" id="edit-amount" class="input-compact" min="0">
                 </div>
-
                 <div id="edit-fields-qty-price" class="hidden grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="label-compact">Qty</label>
-                        <input type="number" id="edit-qty" class="input-compact" min="1">
-                    </div>
-                    <div>
-                        <label class="label-compact">Harga</label>
-                        <input type="number" id="edit-price" class="input-compact" min="0">
-                    </div>
+                    <div><label class="label-compact">Qty</label><input type="number" id="edit-qty" class="input-compact" min="1"></div>
+                    <div><label class="label-compact">Harga</label><input type="number" id="edit-price" class="input-compact" min="0"></div>
                 </div>
-
                 <div class="flex justify-end gap-2 mt-2">
                     <button type="button" id="cancel-edit" class="btn-compact bg-slate-100 text-slate-600 hover:bg-slate-200">Batal</button>
                     <button type="submit" class="btn-compact bg-sky-600 text-white hover:bg-sky-700">Simpan</button>
@@ -100,15 +88,15 @@
         <div id="auth-status" class="text-[9px] text-sky-400 font-mono bg-sky-50 px-2 py-0.5 rounded">Connecting...</div>
     </header>
 
-    <div id="loading" class="text-center p-10 text-sky-600 font-bold text-xs absolute inset-0 flex items-center justify-center bg-white z-40">
-        Memuat Data...
+    <div id="loading" class="absolute inset-0 bg-white z-40 flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mb-2"></div>
+        <p class="text-sky-600 font-bold text-xs">Memuat Data...</p>
     </div>
 
-    <!-- MAIN CONTENT GRID - Full Height Wrapper -->
+    <!-- MAIN CONTENT GRID -->
     <div id="main-content" class="hidden flex-grow overflow-hidden pb-1">
         <div class="grid grid-cols-12 gap-2 h-full">
-            
-            <!-- LEFT PANEL: NOTA (45% Width - col-span-5) -->
+            <!-- LEFT PANEL: NOTA (45%) -->
             <div class="col-span-5 flex flex-col h-full card-compact bg-white/90">
                 <div class="shrink-0">
                     <h2 class="section-title">1. Rekap Nota Sparepart</h2>
@@ -118,27 +106,21 @@
                         <button type="submit" class="btn-compact bg-amber-500 hover:bg-amber-600 text-white px-2">+</button>
                     </form>
                 </div>
-
-                <!-- SCROLLABLE LIST AREA - MAXIMIZED HEIGHT -->
                 <div class="flex-grow overflow-y-auto pr-1 border border-slate-100 rounded bg-slate-50/30 min-h-0">
                     <div id="nota-list-container" class="grid grid-cols-2 gap-x-2 gap-y-0 content-start p-0.5">
                         <div id="nota-column-1" class="flex flex-col w-full min-w-0"></div>
                         <div id="nota-column-2" class="flex flex-col w-full min-w-0 hidden"></div>
                     </div>
                 </div>
-                
                 <div class="shrink-0 mt-1 pt-1 border-t border-amber-100">
                     <div class="flex justify-between items-center text-[10px] font-bold text-slate-800 bg-amber-50 p-1 rounded border border-amber-100">
-                        <span>TOTAL NOTA:</span>
-                        <span id="total-nota" class="text-amber-700 text-xs">Rp 0</span>
+                        <span>TOTAL NOTA:</span><span id="total-nota" class="text-amber-700 text-xs">Rp 0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT PANEL: OTHERS & PROFIT (55% Width - col-span-7) -->
+            <!-- RIGHT PANEL (55%) -->
             <div class="col-span-7 flex flex-col h-full gap-2 overflow-hidden">
-                
-                <!-- TOP RIGHT: TAGIHAN LAIN & RETUR (Grid 2 cols, height 35%) -->
                 <div class="grid grid-cols-2 gap-2 h-[35%] shrink-0">
                     <!-- Tagihan Lain -->
                     <div class="card-compact flex flex-col h-full min-h-0">
@@ -154,7 +136,6 @@
                             <span>Total:</span> <span id="total-expense">Rp 0</span>
                         </div>
                     </div>
-
                     <!-- Retur -->
                     <div class="card-compact flex flex-col h-full min-h-0">
                         <h2 class="section-title text-red-800 border-red-200">3. Retur (Kurang)</h2>
@@ -171,57 +152,36 @@
                     </div>
                 </div>
 
-                <!-- MIDDLE RIGHT: TOTAL BILLING (Shrink) -->
+                <!-- TOTAL BILLING -->
                 <div class="bg-sky-100 px-2 py-1 rounded border border-sky-200 shadow-inner shrink-0 flex justify-between items-center h-8">
                     <h2 class="text-[10px] font-bold text-sky-900 uppercase">4. Total Billing</h2>
                     <span id="final-billing" class="text-sm font-extrabold text-sky-800">Rp 0</span>
                 </div>
 
-                <!-- BOTTOM RIGHT: PROFIT CALCULATION (Flex Grow to fill rest) -->
+                <!-- PROFIT CALCULATION -->
                 <div class="card-compact flex-grow flex flex-col bg-lime-50/50 border-lime-200 min-h-0">
                     <h2 class="section-title text-lime-800 border-lime-300 mb-1">5. Kalkulasi Profit Bulanan</h2>
-                    
                     <div class="grid grid-cols-12 gap-2 h-full min-h-0">
-                        <!-- INPUTS (Compact Grid) -->
                         <div class="col-span-7 grid grid-cols-2 gap-x-2 gap-y-0.5 content-start overflow-y-auto pr-1">
                             <div><label class="label-compact">a. Saldo Bank</label><input type="number" id="saldo-bank" class="input-compact bg-white" value="0"></div>
                             <div><label class="label-compact">e. Ongoing TT</label><input type="number" id="ongoing-topedtiktok" class="input-compact bg-white" value="0"></div>
-                            
                             <div><label class="label-compact">b. Saldo Shopee</label><input type="number" id="saldo-shopee" class="input-compact bg-white" value="0"></div>
                             <div><label class="label-compact">f. Saldo Lazada</label><input type="number" id="saldo-lazada" class="input-compact bg-white" value="0"></div>
-                            
                             <div><label class="label-compact">c. Ongoing Shopee</label><input type="number" id="ongoing-shopee" class="input-compact bg-white" value="0"></div>
                             <div><label class="label-compact">g. Ongoing Lazada</label><input type="number" id="ongoing-lazada" class="input-compact bg-white" value="0"></div>
-                            
                             <div><label class="label-compact">d. Saldo Toped TT</label><input type="number" id="saldo-topedtiktok" class="input-compact bg-white" value="0"></div>
                             <div><label class="label-compact text-red-600">h. Saldo Terpakai</label><input type="number" id="saldo-terpakai" class="input-compact bg-red-50 border-red-200 text-red-700 font-bold" value="0"></div>
-                            
                             <div class="col-span-2 mt-1 pb-1">
                                 <button id="calculate-profit-btn" class="btn-compact w-full bg-lime-600 text-white hover:bg-lime-700 h-5 text-[9px]">HITUNG PROFIT</button>
                             </div>
                         </div>
-
-                        <!-- RESULTS SUMMARY -->
                         <div class="col-span-5 flex flex-col justify-center pl-2 border-l border-lime-200 text-[9px] gap-0.5">
                             <div class="space-y-0.5">
-                                <div class="flex justify-between border-b border-lime-100 pb-0.5">
-                                    <span class="text-slate-500">Saldo Kotor</span>
-                                    <span id="total-saldo-kotor" class="font-bold text-lime-700">Rp 0</span>
-                                </div>
-                                <div class="flex justify-between border-b border-red-100 pb-0.5">
-                                    <span class="text-slate-500">Terpakai (-)</span>
-                                    <span id="saldo-terpakai-display" class="font-bold text-red-600">Rp 0</span>
-                                </div>
-                                <div class="flex justify-between border-b border-sky-100 pb-0.5">
-                                    <span class="text-slate-500">Billing (-)</span>
-                                    <span id="billing-for-profit" class="font-bold text-sky-600">Rp 0</span>
-                                </div>
-                                <div class="flex justify-between pt-0.5">
-                                    <span class="text-slate-500 font-semibold">Saldo Bersih</span>
-                                    <span id="total-saldo-bersih" class="font-bold text-slate-700">Rp 0</span>
-                                </div>
+                                <div class="flex justify-between border-b border-lime-100 pb-0.5"><span class="text-slate-500">Saldo Kotor</span><span id="total-saldo-kotor" class="font-bold text-lime-700">Rp 0</span></div>
+                                <div class="flex justify-between border-b border-red-100 pb-0.5"><span class="text-slate-500">Terpakai (-)</span><span id="saldo-terpakai-display" class="font-bold text-red-600">Rp 0</span></div>
+                                <div class="flex justify-between border-b border-sky-100 pb-0.5"><span class="text-slate-500">Billing (-)</span><span id="billing-for-profit" class="font-bold text-sky-600">Rp 0</span></div>
+                                <div class="flex justify-between pt-0.5"><span class="text-slate-500 font-semibold">Saldo Bersih</span><span id="total-saldo-bersih" class="font-bold text-slate-700">Rp 0</span></div>
                             </div>
-                            
                             <div class="mt-1 p-1.5 bg-lime-200 rounded text-center shadow-inner border border-lime-300">
                                 <div class="text-[8px] font-bold text-lime-800 uppercase tracking-wide">PROFIT BERSIH</div>
                                 <div id="final-profit" class="text-base font-black text-lime-900 leading-tight mt-0">Rp 0</div>
@@ -233,21 +193,21 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
-        window.onerror = function(msg, url, line) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error-container').classList.remove('hidden');
-            document.getElementById('error-message').textContent = `${msg} (Line ${line})`;
-        };
-
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, addDoc, updateDoc, deleteDoc, setDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        try {
-            // --- TEMPAT PASTE KODE FIREBASE ANDA DI SINI ---
-            const firebaseConfig = {
+        // ⬇️⬇️⬇️ AREA EDIT - HATI-HATI DI SINI ⬇️⬇️⬇️
+        
+        // PASTIKAN FORMATNYA PERSIS SEPERTI INI:
+        // const firebaseConfig = {
+        //    apiKey: "...",
+        //    ...
+        // };
+        
+        // Hapus baris di bawah ini dan tempel config Anda:
+        const firebaseConfig = {
   apiKey: "AIzaSyBtIkNiTVfqi314s7HokDOSkjXnl1P_AoE",
   authDomain: "aplikasi-subarushope.firebaseapp.com",
   projectId: "aplikasi-subarushope",
@@ -255,299 +215,140 @@
   messagingSenderId: "201701466790",
   appId: "1:201701466790:web:f24db5db1471e173314a67"
 };
+        
+        // ⬆️⬆️⬆️ AREA EDIT SELESAI ⬆️⬆️⬆️
 
-            // -------------------------------------------------
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Validasi Config
+        const isFirebaseAvailable = firebaseConfig && firebaseConfig.apiKey;
+        let app, db, auth, userId;
 
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        if (isFirebaseAvailable) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        }
+
+        // UI References
+        const els = {
+            authStatus: document.getElementById('auth-status'), loading: document.getElementById('loading'), main: document.getElementById('main-content'),
+            notaCol1: document.getElementById('nota-column-1'), notaCol2: document.getElementById('nota-column-2'),
+            expenseList: document.getElementById('expense-list'), returnList: document.getElementById('return-list'),
+            totalNota: document.getElementById('total-nota'), totalExpense: document.getElementById('total-expense'), totalReturn: document.getElementById('total-return'),
+            finalBilling: document.getElementById('final-billing'), billingForProfit: document.getElementById('billing-for-profit'),
+            finalProfit: document.getElementById('final-profit'), editModal: document.getElementById('edit-modal'), editForm: document.getElementById('edit-form')
+        };
+
+        const inputs = {
+            bank: document.getElementById('saldo-bank'), shopee: document.getElementById('saldo-shopee'), ongoingShopee: document.getElementById('ongoing-shopee'),
+            toped: document.getElementById('saldo-topedtiktok'), ongoingToped: document.getElementById('ongoing-topedtiktok'),
+            lazada: document.getElementById('saldo-lazada'), ongoingLazada: document.getElementById('ongoing-lazada'), terpakai: document.getElementById('saldo-terpakai')
+        };
+
+        if (isFirebaseAvailable) {
+            if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
+            else await signInAnonymously(auth);
+            onAuthStateChanged(auth, (user) => {
+                if(user) {
+                    userId = user.uid;
+                    els.authStatus.textContent = `Online | ID: ${userId.slice(0,4)}`;
+                    els.loading.classList.add('hidden');
+                    els.main.classList.remove('hidden');
+                    startListeners();
+                }
+            });
+        } else {
+            els.loading.classList.add('hidden');
+            els.main.classList.remove('hidden');
+            els.authStatus.textContent = "Offline Mode (Data Hilang Saat Refresh)";
+            render();
+        }
+
+        let allTransactions = [];
+        function getPath(col) { return `artifacts/${appId}/users/${userId}/${col}`; }
+        function formatRp(n) { return new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(n); }
+
+        function startListeners() {
+            onSnapshot(query(collection(db, getPath('transactions'))), (snap) => {
+                const data = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                const notas = data.filter(d => d.type === 'nota').sort((a,b) => (a.date?.seconds || 0) - (b.date?.seconds || 0));
+                const others = data.filter(d => d.type !== 'nota');
+                allTransactions = [...notas, ...others];
+                render(); calc();
+            });
+            onSnapshot(doc(db, getPath('summary'), 'profit_summary'), (snap) => {
+                if(snap.exists()) { const d = snap.data(); Object.keys(inputs).forEach(key => { if(inputs[key]) inputs[key].value = d[key] || 0; }); }
+                calc();
+            });
+        }
+
+        // Modal Logic
+        window.openEditModal = function(id, type) {
+            const item = allTransactions.find(t => t.id === id); if (!item) return;
+            document.getElementById('edit-id').value = id; document.getElementById('edit-type').value = type;
+            document.getElementById('edit-desc').value = item.description || item.name;
+            const isNota = type === 'nota';
+            document.getElementById('edit-field-amount-wrapper').classList.toggle('hidden', !isNota);
+            document.getElementById('edit-fields-qty-price').classList.toggle('hidden', isNota);
+            if(isNota) document.getElementById('edit-amount').value = item.amount;
+            else { document.getElementById('edit-qty').value = item.quantity; document.getElementById('edit-price').value = item.price; }
+            els.editModal.classList.remove('hidden');
+        };
+        document.getElementById('cancel-edit').onclick = () => els.editModal.classList.add('hidden');
+        
+        els.editForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const type = document.getElementById('edit-type').value;
+            const desc = document.getElementById('edit-desc').value;
+            let newData = type === 'nota' ? { description: desc, amount: parseFloat(document.getElementById('edit-amount').value) } 
+                : { name: desc, quantity: parseFloat(document.getElementById('edit-qty').value), price: parseFloat(document.getElementById('edit-price').value), amount: parseFloat(document.getElementById('edit-qty').value) * parseFloat(document.getElementById('edit-price').value) };
             
-            const isFirebaseAvailable = firebaseConfig && firebaseConfig.apiKey;
+            if(isFirebaseAvailable) await updateDoc(doc(db, getPath('transactions'), id), newData);
+            else { const idx = allTransactions.findIndex(t => t.id === id); if(idx!==-1) allTransactions[idx] = {...allTransactions[idx], ...newData}; render(); calc(); }
+            els.editModal.classList.add('hidden');
+        };
+
+        function render() {
+            els.notaCol1.innerHTML = ''; els.notaCol2.innerHTML = ''; els.expenseList.innerHTML = ''; els.returnList.innerHTML = '';
+            const notas = allTransactions.filter(t => t.type === 'nota');
+            const others = allTransactions.filter(t => t.type !== 'nota');
             
-            let app, db, auth, userId;
+            notas.slice(0, 30).forEach((t, i) => els.notaCol1.appendChild(createNotaEl(t, i+1)));
+            if(notas.length > 30) {
+                els.notaCol2.classList.remove('hidden');
+                notas.slice(30).forEach((t, i) => els.notaCol2.appendChild(createNotaEl(t, 31+i)));
+            } else els.notaCol2.classList.add('hidden');
 
-            if (isFirebaseAvailable) {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-            }
+            others.forEach(t => (t.type === 'expense' ? els.expenseList : els.returnList).appendChild(createOtherEl(t)));
+            
+            document.querySelectorAll('.btn-del').forEach(b => b.onclick = () => isFirebaseAvailable ? deleteDoc(doc(db, getPath('transactions'), b.dataset.id)) : (allTransactions=allTransactions.filter(t=>t.id!==b.dataset.id), render(), calc()));
+            document.querySelectorAll('.btn-edit').forEach(b => b.onclick = () => window.openEditModal(b.dataset.id, b.dataset.type));
+        }
 
-            // UI Elements
-            const els = {
-                authStatus: document.getElementById('auth-status'),
-                loading: document.getElementById('loading'),
-                main: document.getElementById('main-content'),
-                notaCol1: document.getElementById('nota-column-1'),
-                notaCol2: document.getElementById('nota-column-2'),
-                expenseList: document.getElementById('expense-list'),
-                returnList: document.getElementById('return-list'),
-                totalNota: document.getElementById('total-nota'),
-                totalExpense: document.getElementById('total-expense'),
-                totalReturn: document.getElementById('total-return'),
-                finalBilling: document.getElementById('final-billing'),
-                billingForProfit: document.getElementById('billing-for-profit'),
-                saldoKotor: document.getElementById('total-saldo-kotor'),
-                saldoTerpakai: document.getElementById('saldo-terpakai-display'),
-                saldoBersih: document.getElementById('total-saldo-bersih'),
-                finalProfit: document.getElementById('final-profit'),
-                editModal: document.getElementById('edit-modal'),
-                editForm: document.getElementById('edit-form')
-            };
+        function createNotaEl(t, idx) {
+            const div = document.createElement('div'); div.className = 'row-item group';
+            div.innerHTML = `<div class="font-bold text-slate-400 w-5 text-center shrink-0 text-[9px]">${idx}.</div>
+                <div class="flex-1 min-w-0 flex items-center gap-1 mr-1"><span class="truncate text-slate-700 font-medium flex-1 cursor-help" title="${t.description}">${t.description}</span><span class="text-slate-300 text-[9px] shrink-0">|</span><span class="text-amber-700 font-bold whitespace-nowrap shrink-0 text-[10px]">${formatRp(t.amount)}</span></div>
+                <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5" data-id="${t.id}" data-type="nota">✏️</button><button class="btn-del text-red-400 hover:text-red-600 p-0.5" data-id="${t.id}">🗑️</button></div>`;
+            return div;
+        }
 
-            const inputs = {
-                bank: document.getElementById('saldo-bank'),
-                shopee: document.getElementById('saldo-shopee'),
-                ongoingShopee: document.getElementById('ongoing-shopee'),
-                toped: document.getElementById('saldo-topedtiktok'),
-                ongoingToped: document.getElementById('ongoing-topedtiktok'),
-                lazada: document.getElementById('saldo-lazada'),
-                ongoingLazada: document.getElementById('ongoing-lazada'),
-                terpakai: document.getElementById('saldo-terpakai')
-            };
+        function createOtherEl(t) {
+            const isExp = t.type === 'expense'; const div = document.createElement('div'); div.className = 'row-item group';
+            div.innerHTML = `<span class="truncate font-medium text-slate-700 flex-1" title="${t.name}">${t.name} <span class="text-slate-400 text-[9px]">(${t.quantity}x)</span></span><span class="font-bold ${isExp?'text-green-700':'text-red-700'} mr-2">${isExp?'':'- '}${formatRp(t.amount)}</span>
+                <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5" data-id="${t.id}" data-type="${t.type}">✏️</button><button class="btn-del text-red-400 hover:text-red-600 p-0.5" data-id="${t.id}">🗑️</button></div>`;
+            return div;
+        }
 
-            // Initialize
-            if (isFirebaseAvailable) {
-                if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
-                else await signInAnonymously(auth);
+        function calc() {
+            let sumNota=0, sumExp=0, sumRet=0;
+            allTransactions.forEach(t => { if(t.type==='nota') sumNota+=t.amount; else if(t.type==='expense') sumExp+=t.amount; else sumRet+=t.amount; });
+            const bill = (sumNota + sumExp) - sumRet;
+            els.totalNota.textContent = formatRp(sumNota); els.totalExpense.textContent = formatRp(sumExp); els.totalReturn.textContent = `- ${formatRp(sumRet)}`;
+            els.finalBilling.textContent = formatRp(bill); els.billingForProfit.textContent = formatRp(bill);
 
-                onAuthStateChanged(auth, (user) => {
-                    if(user) {
-                        userId = user.uid;
-                        els.authStatus.textContent = `Online | ID: ${userId.slice(0,4)}`;
-                        els.loading.classList.add('hidden');
-                        els.main.classList.remove('hidden');
-                        startListeners();
-                    }
-                });
-            } else {
-                els.loading.classList.add('hidden');
-                els.main.classList.remove('hidden');
-                els.authStatus.textContent = "Offline Mode";
-                allTransactions = [];
-                render();
-            }
-
-            let allTransactions = [];
-
-            function getPath(col) { return `artifacts/${appId}/users/${userId}/${col}`; }
-            function formatRp(n) { return new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', minimumFractionDigits:0}).format(n); }
-
-            function startListeners() {
-                const q = query(collection(db, getPath('transactions')));
-                onSnapshot(q, (snap) => {
-                    const data = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    const notas = data.filter(d => d.type === 'nota').sort((a,b) => (a.date?.seconds || 0) - (b.date?.seconds || 0));
-                    const others = data.filter(d => d.type !== 'nota');
-                    allTransactions = [...notas, ...others];
-                    render();
-                    calc();
-                });
-
-                onSnapshot(doc(db, getPath('summary'), 'profit_summary'), (snap) => {
-                    if(snap.exists()) {
-                        const d = snap.data();
-                        Object.keys(inputs).forEach(key => {
-                            if(inputs[key]) inputs[key].value = d[key] || 0;
-                        });
-                    }
-                    calc();
-                });
-            }
-
-            // --- EDIT ---
-            window.openEditModal = function(id, type) {
-                const item = allTransactions.find(t => t.id === id);
-                if (!item) return;
-                document.getElementById('edit-id').value = id;
-                document.getElementById('edit-type').value = type;
-                document.getElementById('edit-desc').value = item.description || item.name;
-
-                const amWrap = document.getElementById('edit-field-amount-wrapper');
-                const qpWrap = document.getElementById('edit-fields-qty-price');
-
-                if (type === 'nota') {
-                    amWrap.classList.remove('hidden');
-                    qpWrap.classList.add('hidden');
-                    document.getElementById('edit-amount').value = item.amount;
-                } else {
-                    amWrap.classList.add('hidden');
-                    qpWrap.classList.remove('hidden');
-                    document.getElementById('edit-qty').value = item.quantity;
-                    document.getElementById('edit-price').value = item.price;
-                }
-                els.editModal.classList.remove('hidden');
-            };
-
-            document.getElementById('cancel-edit').onclick = () => els.editModal.classList.add('hidden');
-
-            els.editForm.onsubmit = async (e) => {
-                e.preventDefault();
-                const id = document.getElementById('edit-id').value;
-                const type = document.getElementById('edit-type').value;
-                const desc = document.getElementById('edit-desc').value;
-                let newData = {};
-
-                if (type === 'nota') {
-                    const amount = parseFloat(document.getElementById('edit-amount').value);
-                    newData = { description: desc, amount: amount };
-                } else {
-                    const qty = parseFloat(document.getElementById('edit-qty').value);
-                    const price = parseFloat(document.getElementById('edit-price').value);
-                    newData = { name: desc, quantity: qty, price: price, amount: qty * price };
-                }
-
-                if (isFirebaseAvailable) await updateDoc(doc(db, getPath('transactions'), id), newData);
-                else {
-                    const idx = allTransactions.findIndex(t => t.id === id);
-                    if(idx !== -1) { allTransactions[idx] = { ...allTransactions[idx], ...newData }; render(); calc(); }
-                }
-                els.editModal.classList.add('hidden');
-            };
-
-            function render() {
-                els.notaCol1.innerHTML = '';
-                els.notaCol2.innerHTML = '';
-                els.expenseList.innerHTML = '';
-                els.returnList.innerHTML = '';
-
-                const notas = allTransactions.filter(t => t.type === 'nota');
-                const others = allTransactions.filter(t => t.type !== 'nota');
-                
-                const split = 30;
-                const col1 = notas.slice(0, split);
-                const col2 = notas.slice(split);
-
-                col1.forEach((t, i) => els.notaCol1.appendChild(createNotaEl(t, i+1)));
-                if(col2.length > 0) {
-                    els.notaCol2.classList.remove('hidden');
-                    col2.forEach((t, i) => els.notaCol2.appendChild(createNotaEl(t, split + i + 1)));
-                } else {
-                    els.notaCol2.classList.add('hidden');
-                }
-
-                others.forEach(t => {
-                    const el = createOtherEl(t);
-                    if(t.type === 'expense') els.expenseList.appendChild(el);
-                    else els.returnList.appendChild(el);
-                });
-
-                document.querySelectorAll('.btn-del').forEach(b => {
-                    b.onclick = () => {
-                         if(isFirebaseAvailable) deleteDoc(doc(db, getPath('transactions'), b.dataset.id));
-                         else { allTransactions = allTransactions.filter(t => t.id !== b.dataset.id); render(); calc(); }
-                    };
-                });
-                document.querySelectorAll('.btn-edit').forEach(b => {
-                    b.onclick = () => window.openEditModal(b.dataset.id, b.dataset.type);
-                });
-            }
-
-            function createNotaEl(t, idx) {
-                const div = document.createElement('div');
-                // Compact Row Style
-                div.className = 'row-item group';
-                div.innerHTML = `
-                    <div class="font-bold text-slate-400 w-5 text-center shrink-0 text-[9px]">${idx}.</div>
-                    <div class="flex-1 min-w-0 flex items-center gap-1 mr-1">
-                        <span class="truncate text-slate-700 font-medium flex-1 cursor-help" title="${t.description}">${t.description}</span>
-                        <span class="text-slate-300 text-[9px] shrink-0">|</span>
-                        <span class="text-amber-700 font-bold whitespace-nowrap shrink-0 text-[10px]">${formatRp(t.amount)}</span>
-                    </div>
-                    <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5" data-id="${t.id}" data-type="nota" title="Edit">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152.05A15.89,15.89,0,0,0,32,163.37V208a16,16,0,0,0,16,16H92.67a15.89,15.89,0,0,0,11.32-4.69L227.31,96A16,16,0,0,0,227.31,73.37ZM51.31,160,136,75.31,152.69,92,68,176.69H51.31V160ZM48,208V192H64v16Zm123.31-16L88,108.69,147.31,49.37,206.63,108.69Z"></path></svg>
-                        </button>
-                        <button class="btn-del text-red-400 hover:text-red-600 p-0.5" data-id="${t.id}" title="Hapus">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
-                        </button>
-                    </div>
-                `;
-                return div;
-            }
-
-            function createOtherEl(t) {
-                const div = document.createElement('div');
-                const isExp = t.type === 'expense';
-                div.className = 'row-item group';
-                const val = `${isExp?'':'- '}${formatRp(t.amount)}`;
-                div.innerHTML = `
-                    <span class="truncate font-medium text-slate-700 flex-1" title="${t.name}">${t.name} <span class="text-slate-400 text-[9px]">(${t.quantity}x)</span></span>
-                    <span class="font-bold ${isExp?'text-green-700':'text-red-700'} mr-2">${val}</span>
-                    <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button class="btn-edit text-blue-400 hover:text-blue-600 p-0.5" data-id="${t.id}" data-type="${t.type}">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152.05A15.89,15.89,0,0,0,32,163.37V208a16,16,0,0,0,16,16H92.67a15.89,15.89,0,0,0,11.32-4.69L227.31,96A16,16,0,0,0,227.31,73.37ZM51.31,160,136,75.31,152.69,92,68,176.69H51.31V160ZM48,208V192H64v16Zm123.31-16L88,108.69,147.31,49.37,206.63,108.69Z"></path></svg>
-                        </button>
-                        <button class="btn-del text-red-400 hover:text-red-600 p-0.5" data-id="${t.id}">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
-                        </button>
-                    </div>
-                `;
-                return div;
-            }
-
-            function calc() {
-                let sumNota=0, sumExp=0, sumRet=0;
-                allTransactions.forEach(t => {
-                    if(t.type==='nota') sumNota += (t.amount||0);
-                    else if(t.type==='expense') sumExp += (t.amount||0);
-                    else if(t.type==='return') sumRet += (t.amount||0);
-                });
-                const bill = (sumNota + sumExp) - sumRet;
-
-                els.totalNota.textContent = formatRp(sumNota);
-                els.totalExpense.textContent = formatRp(sumExp);
-                els.totalReturn.textContent = `- ${formatRp(sumRet)}`;
-                els.finalBilling.textContent = formatRp(bill);
-                els.billingForProfit.textContent = formatRp(bill);
-
-                let vals = {};
-                Object.keys(inputs).forEach(k => vals[k] = parseFloat(inputs[k].value)||0);
-
-                const kotor = vals.bank + vals.shopee + vals.ongoingShopee + vals.toped + vals.ongoingToped + vals.lazada + vals.ongoingLazada;
-                const bersih = kotor - vals.terpakai;
-                const profit = bersih - bill;
-
-                document.getElementById('total-saldo-kotor').textContent = formatRp(kotor);
-                document.getElementById('saldo-terpakai-display').textContent = formatRp(vals.terpakai);
-                document.getElementById('total-saldo-bersih').textContent = formatRp(bersih);
-                els.finalProfit.textContent = formatRp(profit);
-                els.finalProfit.className = `text-xl font-black leading-tight mt-0.5 ${profit>=0 ? 'text-lime-900' : 'text-red-700'}`;
-
-                if(isFirebaseAvailable) {
-                    if(window.saveTimeout) clearTimeout(window.saveTimeout);
-                    window.saveTimeout = setTimeout(() => {
-                        setDoc(doc(db, getPath('summary'), 'profit_summary'), vals, {merge:true});
-                    }, 1000);
-                }
-            }
-
-            document.getElementById('nota-form').onsubmit = (e) => {
-                e.preventDefault();
-                const desc = document.getElementById('nota-description').value;
-                const amt = parseFloat(document.getElementById('nota-amount').value);
-                if(desc && !isNaN(amt)) {
-                    const newItem = {type:'nota', description:desc, amount:amt, date: new Date()};
-                    if(isFirebaseAvailable) addDoc(collection(db, getPath('transactions')), newItem);
-                    else { newItem.id = Math.random().toString(36); allTransactions.push(newItem); render(); calc(); }
-                    e.target.reset();
-                    document.getElementById('nota-amount').value = '';
-                }
-            };
-            document.getElementById('expense-form').onsubmit = (e) => {
-                e.preventDefault();
-                const name = document.getElementById('expense-name').value;
-                const qty = parseFloat(document.getElementById('expense-qty').value);
-                const prc = parseFloat(document.getElementById('expense-price').value);
-                if(name && qty>0) {
-                    const newItem = {type:'expense', name, quantity:qty, price:prc, amount:qty*prc, date: new Date()};
-                    if(isFirebaseAvailable) addDoc(collection(db, getPath('transactions')), newItem);
-                    else { allTransactions.push({...newItem, id:Math.random().toString()}); render(); calc(); }
-                    e.target.reset();
-                }
-            };
-            document.getElementById('return-form').onsubmit = (e) => {
-                e.preventDefault();
-                const name = document.getElementById('return-name').value;
-                const qty = parseFloat(document.getElementById('return-qty').value);
-                const prc = parseFloat(document.getElementById('return-price').value);
-                if(name && qty>0) {
-                     const newItem = {type
+            let vals = {}; Object.keys(inputs).forEach(k => vals[k] = parseFloat(inputs[k].value)||0);
+            const kotor = Object.values(vals).reduce((a,b)=>a+b,0) - vals.terpakai - vals.terpakai; // Sum all then subtract terpakai twice (once to remove from sum, once as
