@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Stories - English for Kids</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font yang mirip buku cerita anak -->
+    <link href="https://fonts.googleapis.com/css2?family=Andika&family=Fredoka+One&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Andika', sans-serif;
+            background-color: #F0F9FF;
+            color: #334155;
+        }
+        .font-title { font-family: 'Fredoka One', cursive; }
+        
+        /* Card Styles */
+        .story-card {
+            background: white;
+            border: 6px solid #60A5FA; /* Blue border */
+            border-radius: 24px;
+            box-shadow: 10px 10px 0px #2563EB;
+            transition: transform 0.2s;
+        }
+        
+        /* Story Box */
+        .story-box {
+            background-color: #FFFBEB; /* Creamy paper color */
+            border-left: 6px solid #F59E0B;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        /* Option Button */
+        .btn-option {
+            background: white;
+            border: 2px solid #CBD5E1;
+            border-radius: 12px;
+            padding: 12px 16px;
+            width: 100%;
+            text-align: left;
+            transition: all 0.2s;
+            font-weight: bold;
+            color: #475569;
+            position: relative;
+        }
+        .btn-option:hover { background: #F8FAFC; border-color: #94A3B8; }
+        .btn-option.correct { background: #DCFCE7; border-color: #22C55E; color: #166534; }
+        .btn-option.wrong { background: #FEE2E2; border-color: #EF4444; color: #991B1B; }
+
+        /* Navigation */
+        .btn-nav {
+            background: #3B82F6;
+            color: white;
+            border-bottom: 4px solid #1D4ED8;
+            border-radius: 12px;
+            padding: 10px 24px;
+            font-weight: bold;
+            transition: all 0.1s;
+        }
+        .btn-nav:active { transform: translateY(2px); border-bottom: 0; }
+        .btn-nav.secondary { background: #94A3B8; border-color: #475569; }
+        
+        .speaker-btn {
+            background: #DBEAFE;
+            color: #2563EB;
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .speaker-btn:hover { background: #BFDBFE; transform: scale(1.1); }
+        .speaker-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-6 px-4">
+
+    <!-- HEADER -->
+    <header class="w-full max-w-3xl flex justify-between items-center mb-6">
+        <div class="flex items-center gap-2">
+            <span class="text-4xl">📚</span>
+            <h1 class="text-3xl text-blue-600 font-title drop-shadow-sm tracking-wide">Smart Stories</h1>
+        </div>
+        <div class="bg-white px-4 py-2 rounded-full border-2 border-blue-200 font-bold text-blue-600 shadow-sm">
+            Story <span id="current-story-num">1</span> / <span id="total-story-num">100</span>
+        </div>
+    </header>
+
+    <!-- MAIN CARD -->
+    <main class="w-full max-w-3xl story-card p-6 md:p-8 relative mb-24">
+        
+        <!-- STORY SECTION -->
+        <div class="mb-8">
+            <div class="flex flex-col items-center mb-6 border-b-2 border-slate-100 pb-4">
+                <h2 class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Read and Answer</h2>
+                <div class="flex items-center justify-center gap-3 text-center w-full">
+                    <h2 id="story-title" class="text-3xl md:text-4xl font-bold text-amber-600 font-title leading-tight">Title Here</h2>
+                    <button onclick="readStory()" class="speaker-btn" title="Listen to Story">🔊</button>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-6 items-start">
+                <!-- Image Box -->
+                <div class="w-full md:w-1/3 flex justify-center">
+                    <div class="aspect-square w-40 md:w-full bg-blue-50 rounded-2xl flex items-center justify-center text-8xl border-4 border-white shadow-md transform -rotate-2">
+                        <span id="story-emoji">🦁</span>
+                    </div>
+                </div>
+
+                <!-- Story Text Box -->
+                <div class="w-full md:w-2/3">
+                    <div class="story-box" id="story-content">
+                        <!-- Content goes here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUESTIONS SECTION -->
+        <div class="border-t-4 border-dashed border-slate-200 pt-6">
+            <div class="flex items-center gap-2 mb-6">
+                <span class="bg-orange-100 text-orange-600 p-2 rounded-lg text-xl">❓</span>
+                <h3 class="text-2xl font-title text-slate-700">Questions</h3>
+            </div>
+            <div id="questions-container" class="space-y-6">
+                <!-- Questions will be injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- NAVIGATION FOOTER -->
+    <footer class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 flex justify-center gap-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
+        <button onclick="prevStory()" class="btn-nav secondary">⬅️ Previous</button>
+        <button onclick="nextStory()" class="btn-nav">Next Story ➡️</button>
+    </footer>
+
+    <script>
+        // --- DATABASE 1: CERITA MANUAL (DARI REFERENSI ANDA) ---
+        const manualStories = [
+             {
+                id: 1, title: "A Boy", emoji: "👦",
+                content: "He is John. He likes water. He goes to swim every Monday. He swims so well.",
+                questions: [
+                    { q: "Who is he?", options: ["Max", "Tom", "John"], ans: 2 },
+                    { q: "He likes?", options: ["water", "bread", "fish"], ans: 0 },
+                    { q: "He swims every...?", options: ["Sunday", "Monday", "Friday"], ans: 1 }
+                ]
+            },
+            {
+                id: 2, title: "An Elephant", emoji: "🐘",
+                content: "I am an elephant. I am big in size. I have a large trunk. I drink water through my trunk.",
+                questions: [
+                    { q: "What is it?", options: ["elephant", "cat", "dog"], ans: 0 },
+                    { q: "I have a large...?", options: ["tail", "trunk", "head"], ans: 1 },
+                    { q: "I drink water through my...?", options: ["trunk", "mouth", "nose"], ans: 0 }
+                ]
+            },
+            {
+                id: 3, title: "My Friend", emoji: "🧒",
+                content: "This is Tom. Tom is my friend. We play together in the park. He wears a brown shirt.",
+                questions: [
+                    { q: "What is my friend's name?", options: ["Max", "Tom", "Harry"], ans: 1 },
+                    { q: "Tom is my...?", options: ["brother", "sister", "friend"], ans: 2 },
+                    { q: "He wears a ... shirt.", options: ["pink", "red", "brown"], ans: 2 }
+                ]
+            },
+             {
+                id: 4, title: "My Dog", emoji: "🐶",
+                content: "I have a dog. His name is Max. My dog is big. My dog is brown.",
+                questions: [
+                    { q: "I have a ...?", options: ["cat", "bear", "dog"], ans: 2 },
+                    { q: "His name is ...?", options: ["Max", "Mat", "Rex"], ans: 0 },
+                    { q: "My dog is ...?", options: ["big and brown", "little and brown", "big and little"], ans: 0 }
+                ]
+            },
+            {
+                id: 5, title: "The Lion", emoji: "🦁",
+                content: "I am a lion. I am the king of jungle. I have a long tail. I have sharp teeth.",
+                questions: [
+                    { q: "What is it?", options: ["ant", "lion", "dog"], ans: 1 },
+                    { q: "It has sharp ...?", options: ["teeth", "nails", "tongue"], ans: 0 },
+                    { q: "It has a long ...?", options: ["arm", "leg", "tail"], ans: 2 }
+                ]
+            }
+        ];
+
+        // --- DATABASE 2: GENERATOR CERITA PINTAR (VARIATIF) ---
+        // Komponen cerita yang sangat banyak agar kombinasi ceritanya unik
+        const dbCharacters = [
+            { name: "Kitty", type: "cat", gender: "it", emoji: "🐱" },
+            { name: "Bunny", type: "rabbit", gender: "it", emoji: "🐰" },
+            { name: "Dino", type: "dinosaur", gender: "he", emoji: "🦖" },
+            { name: "Bella", type: "girl", gender: "she", emoji: "👧" },
+            { name: "Ben", type: "boy", gender: "he", emoji: "👦" },
+            { name: "Mr. Owl", type: "owl", gender: "he", emoji: "🦉" },
+            { name: "Polly", type: "parrot", gender: "it", emoji: "🦜" },
+            { name: "Timmy", type: "turtle", gender: "he", emoji: "🐢" },
+            { name: "Coco", type: "monkey", gender: "he", emoji: "🐵" },
+            { name: "Goldie", type: "fish", gender: "it", emoji: "🐠" }
+        ];
+
+        const dbActions = [
+            { verb: "eats", noun: ["a carrot", "a banana", "pizza", "an apple", "seeds"], q: "eats" },
+            { verb: "plays with", noun: ["a ball", "a doll", "a kite", "a yo-yo", "blocks"], q: "plays with" },
+            { verb: "goes to", noun: ["the park", "school", "the zoo", "the beach", "the forest"], q: "goes to" },
+            { verb: "sees", noun: ["a rainbow", "the moon", "a star", "a big tree", "a cloud"], q: "sees" },
+            { verb: "likes", noun: ["milk", "honey", "cake", "water", "juice"], q: "likes" },
+            { verb: "wears", noun: ["a red hat", "blue shoes", "a yellow coat", "glasses", "a scarf"], q: "wears" }
+        ];
+
+        const dbAdjectives = ["happy", "sad", "small", "big", "funny", "fast", "slow", "hungry", "sleepy"];
+        const dbColors = ["red", "blue", "green", "yellow", "brown", "white", "black", "orange"];
+
+        function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function generateSmartStory(id) {
+            // 1. Pilih Tokoh Utama & Aksi
+            const char = getRandom(dbCharacters);
+            const act = getRandom(dbActions);
+            const obj = getRandom(act.noun);
+            const adj = getRandom(dbAdjectives);
+            const color = getRandom(dbColors);
+
+            // 2. Variasi Judul (Agar tidak monoton)
+            const titleTemplates = [
+                `${char.name} the ${char.type.charAt(0).toUpperCase() + char.type.slice(1)}`, // Kitty the Cat
+                `My ${char.type}`, // My Cat
+                `${char.name} is ${adj.charAt(0).toUpperCase() + adj.slice(1)}`, // Kitty is Happy
+                `${char.name}'s ${obj.split(' ').pop().charAt(0).toUpperCase() + obj.split(' ').pop().slice(1)}` // Kitty's Ball
+            ];
+            const title = getRandom(titleTemplates);
+
+            // 3. Konstruksi Cerita (4 Kalimat)
+            const pronounSubj = char.gender === 'he' || char.gender === 'she' ? char.gender.charAt(0).toUpperCase() + char.gender.slice(1) : "It";
+            const pronounPoss = char.gender === 'he' ? "His" : (char.gender === 'she' ? "Her" : "Its");
+            
+            const sentences = [
+                `This is ${char.name}.`,
+                `${pronounSubj} is a ${char.type}.`,
+                `${pronounSubj} is ${color} and ${adj}.`,
+                `${pronounSubj} ${act.verb} ${obj}.`
+            ];
+
+            // 4. Generate Pertanyaan Dinamis
+            // Q1: Siapa?
+            const q1Opts = [char.name, "Tom", "Max", "Anna"].filter(n => n !== char.name).slice(0,2);
+            q1Opts.push(char.name);
+            q1Opts.sort(() => 0.5 - Math.random());
+
+            // Q2: Sifat/Warna (Detail)
+            const q2Opts = [color, "purple", "pink"].sort(() => 0.5 - Math.random());
+            const q2Correct = color;
+            
+            // Q3: Aksi/Objek
+            const q3Opts = act.noun.filter(n => n !== obj).slice(0,2);
+            q3Opts.push(obj);
+            q3Opts.sort(() => 0.5 - Math.random());
+
+            return {
+                id: id,
+                title: title,
+                emoji: char.emoji,
+                content: sentences.join(" "),
+                questions: [
+                    { 
+                        q: `What is the name of the ${char.type}?`, 
+                        options: q1Opts, 
+                        ans: q1Opts.indexOf(char.name) 
+                    },
+                    { 
+                        q: `${char.name} is ...`, 
+                        options: q2Opts.map(o => o === color ? `${color} and ${adj}` : `${o} and ${adj}`), // Sedikit trik agar opsi lebih panjang
+                        ans: q2Opts.indexOf(color) 
+                    },
+                    { 
+                        q: `What does ${char.name} do?`, 
+                        options: q3Opts.map(o => `${act.verb} ${o}`), 
+                        ans: q3Opts.indexOf(obj) 
+                    }
+                ]
+            };
+        }
+
+        // Gabungkan Manual + Auto Generate sampai 100
+        let stories = [...manualStories];
+        for(let i=6; i<=100; i++) {
+            stories.push(generateSmartStory(i));
+        }
+
+        // --- APP LOGIC ---
+        let currentIndex = 0;
+        const synth = window.speechSynthesis;
+        let engVoice = null;
+
+        function initVoice() {
+            const voices = synth.getVoices();
+            engVoice = voices.find(v => v.name.includes('Google US English')) || 
+                       voices.find(v => v.lang.includes('en-US')) || 
+                       voices.find(v => v.lang.includes('en'));
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = initVoice;
+
+        function loadStory(index) {
+            const story = stories[index];
+            document.getElementById('current-story-num').textContent = index + 1;
+            
+            // Header
+            document.getElementById('story-title').textContent = story.title;
+            document.getElementById('story-emoji').textContent = story.emoji;
+            
+            // Content
+            const sentences = story.content.split('. ').filter(s => s.length > 0);
+            let html = '<ul class="space-y-2">';
+            sentences.forEach(s => {
+                const txt = s.trim().endsWith('.') ? s : s + '.';
+                html += `<li class="flex gap-3 text-lg"><span class="text-blue-400 font-bold mt-1">•</span> <span>${txt}</span></li>`;
+            });
+            html += '</ul>';
+            document.getElementById('story-content').innerHTML = html;
+
+            // Questions
+            const qContainer = document.getElementById('questions-container');
+            qContainer.innerHTML = '';
+            
+            story.questions.forEach((q, qIdx) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = "bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm hover:border-blue-100 transition-colors";
+                
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                    <button onclick="checkAnswer(${qIdx}, ${optIdx}, this)" class="btn-option group relative overflow-hidden">
+                        <span class="absolute left-0 top-0 bottom-0 w-1 bg-slate-200 group-hover:bg-blue-400 transition-colors"></span>
+                        <span class="ml-2 font-bold text-slate-400 mr-2">${String.fromCharCode(97 + optIdx)})</span>
+                        <span class="relative z-10">${opt}</span>
+                    </button>`;
+                });
+
+                qDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-slate-700 flex items-start gap-2 leading-snug">
+                            <span class="bg-orange-100 text-orange-600 min-w-[2rem] h-8 rounded-lg flex items-center justify-center text-sm border border-orange-200 font-title mt-0.5">${qIdx + 1}</span>
+                            ${q.q}
+                        </h3>
+                        <button onclick="speak('${q.q.replace(/'/g, "\\'")}')" class="speaker-btn scale-90 text-slate-400 hover:text-blue-600 bg-transparent hover:bg-blue-50" title="Read Question">🔊</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        ${optionsHtml}
+                    </div>
+                `;
+                qContainer.appendChild(qDiv);
+            });
+            synth.cancel();
+        }
+
+        function checkAnswer(qIdx, selectedOpt, btn) {
+            const story = stories[currentIndex];
+            const correctOpt = story.questions[qIdx].ans;
+            const parent = btn.parentElement;
+            const buttons = parent.querySelectorAll('.btn-option');
+            
+            // Disable buttons
+            buttons.forEach(b => { b.disabled = true; b.style.cursor = 'default'; });
+
+            if (selectedOpt === correctOpt) {
+                btn.classList.add('correct');
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 }, colors: ['#4ade80', '#22d3ee'] });
+                speak("Correct!");
+            } else {
+                btn.classList.add('wrong');
+                buttons[correctOpt].classList.add('correct'); // Reveal answer
+                speak("Oops!");
+            }
+        }
+
+        function readStory() {
+            const story = stories[currentIndex];
+            speak(`${story.title}. ${story.content}`, 0.85);
+        }
+
+        function speak(text, rate = 1.0) {
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            if (engVoice) u.voice = engVoice;
+            u.lang = 'en-US';
+            u.rate = rate;
+            synth.speak(u);
+        }
+
+        function nextStory() {
+            if (currentIndex < stories.length - 1) {
+                currentIndex++;
+                loadStory(currentIndex);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function prevStory() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadStory(currentIndex);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        document.body.addEventListener('click', () => { if (!engVoice) initVoice(); }, { once: true });
+        window.onload = () => { initVoice(); loadStory(0); };
+
+    </script>
+</body>
+</html>
